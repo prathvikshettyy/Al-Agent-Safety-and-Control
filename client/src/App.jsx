@@ -9,6 +9,7 @@ import { Agents } from './pages/Agents';
 import { Alerts } from './pages/Alerts';
 import { Audit } from './pages/Audit';
 import { Policies } from './pages/Policies';
+import { AnimatedBackground } from './components/AnimatedBackground';
 import { useFeed } from './useFeed';
 import { api, getAdminToken } from './api';
 
@@ -16,6 +17,15 @@ export function App() {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedAction, setSelectedAction] = useState(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [theme, setTheme] = useState(() => localStorage.getItem('agentguard_theme') || 'light');
+
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === 'light' ? 'dark' : 'light';
+      localStorage.setItem('agentguard_theme', next);
+      return next;
+    });
+  };
 
   // Badge counters
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
@@ -87,18 +97,25 @@ export function App() {
   }, [toast]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-      <Navbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        connected={connected}
-        pendingApprovalsCount={pendingApprovalsCount}
-        activeAlertsCount={activeAlertsCount}
-        onOpenLogin={() => setIsLoginOpen(true)}
-      />
+    <div className={`min-h-screen flex flex-col font-sans relative transition-colors duration-300 ${
+      theme === 'light' ? 'theme-light text-slate-800' : 'theme-dark bg-slate-950 text-slate-100'
+    }`}>
+      {theme === 'light' && <AnimatedBackground />}
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="relative z-10 flex flex-col min-h-screen">
+        <Navbar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          connected={connected}
+          pendingApprovalsCount={pendingApprovalsCount}
+          activeAlertsCount={activeAlertsCount}
+          onOpenLogin={() => setIsLoginOpen(true)}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+        />
+
+        {/* Main Content Area */}
+        <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
         {activeTab === 'overview' && (
           <Overview
             setActiveTab={setActiveTab}
@@ -175,6 +192,7 @@ export function App() {
           </button>
         </div>
       )}
+      </div>
     </div>
   );
 }

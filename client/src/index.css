@@ -9,32 +9,259 @@
   }
 }
 
-/* Custom crisp dark scrollbars */
+/* ----------------------------------------------------
+   Animated Background Keyframes
+   ---------------------------------------------------- */
+@keyframes float-slow {
+  0% {
+    transform: translate(0px, 0px) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translate(50px, -35px) scale(1.1) rotate(5deg);
+  }
+  100% {
+    transform: translate(-30px, 45px) scale(0.95) rotate(-3deg);
+  }
+}
+
+@keyframes float-reverse {
+  0% {
+    transform: translate(0px, 0px) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translate(-60px, 40px) scale(1.12) rotate(-6deg);
+  }
+  100% {
+    transform: translate(35px, -30px) scale(0.94) rotate(4deg);
+  }
+}
+
+@keyframes float-pulse {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translate(30px, -25px) scale(1.15);
+    opacity: 0.55;
+  }
+}
+
+@keyframes grid-drift {
+  0% {
+    background-position: 0 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: 72px 72px, 72px 72px, 72px 72px;
+  }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.02);
+  }
+}
+
+/* Custom crisp scrollbars for white theme */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #f8fafc;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #cbd5e1;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #94a3b8;
 }
 
-/* Subtle glow utilities */
+/* Glow utilities */
 .glow-cyan {
-  box-shadow: 0 0 20px -5px rgba(6, 182, 212, 0.25);
+  box-shadow: 0 0 20px -3px rgba(6, 182, 212, 0.35);
 }
 .glow-emerald {
-  box-shadow: 0 0 20px -5px rgba(16, 185, 129, 0.25);
+  box-shadow: 0 0 20px -3px rgba(16, 185, 129, 0.35);
 }
 .glow-rose {
-  box-shadow: 0 0 20px -5px rgba(244, 63, 94, 0.25);
+  box-shadow: 0 0 20px -3px rgba(244, 63, 94, 0.35);
 }
 .glow-amber {
-  box-shadow: 0 0 20px -5px rgba(245, 158, 11, 0.25);
+  box-shadow: 0 0 20px -3px rgba(245, 158, 11, 0.35);
+}
+
+/* ----------------------------------------------------
+   Light Theme (White Background + Glassmorphism)
+   ---------------------------------------------------- */
+.theme-light {
+  color: #1e293b;
+}
+
+.theme-light header {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  border-color: #e2e8f0 !important;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.04);
+}
+
+.theme-light header > div:first-child {
+  background-color: rgba(248, 250, 252, 0.85) !important;
+  border-color: #e2e8f0 !important;
+}
+
+.theme-light .bg-slate-950 {
+  background-color: transparent !important;
+}
+
+/* Glassmorphic White Cards */
+.theme-light .bg-slate-900,
+.theme-light .bg-slate-900\/60,
+.theme-light .bg-slate-900\/80,
+.theme-light .bg-slate-900\/90 {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(226, 232, 240, 0.85) !important;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 1px 3px 0 rgba(15, 23, 42, 0.04);
+}
+
+.theme-light .border-slate-800,
+.theme-light .border-slate-800\/60,
+.theme-light .border-slate-800\/80 {
+  border-color: #e2e8f0 !important;
+}
+
+.theme-light .border-slate-700,
+.theme-light .border-slate-700\/50 {
+  border-color: #cbd5e1 !important;
+}
+
+/* Typography High-Contrast */
+.theme-light .text-white {
+  color: #0f172a !important;
+}
+
+.theme-light .text-slate-100 {
+  color: #0f172a !important;
+}
+
+.theme-light .text-slate-200,
+.theme-light .text-slate-300 {
+  color: #334155 !important;
+}
+
+.theme-light .text-slate-400 {
+  color: #64748b !important;
+}
+
+.theme-light .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+/* Ensure solid colored buttons keep bright white text */
+.theme-light button.bg-cyan-600,
+.theme-light button.bg-cyan-600 *,
+.theme-light button.bg-purple-600,
+.theme-light button.bg-purple-600 *,
+.theme-light button.bg-rose-600,
+.theme-light button.bg-rose-600 *,
+.theme-light button.bg-blue-600,
+.theme-light button.bg-blue-600 *,
+.theme-light .bg-cyan-600,
+.theme-light .bg-cyan-600 * {
+  color: #ffffff !important;
+}
+
+/* Top toolbar scenario buttons in light theme */
+.theme-light header button.bg-slate-800 {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.theme-light header button.bg-slate-800:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Nav items active state */
+.theme-light nav button.bg-slate-800 {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+.theme-light nav button:not(.bg-slate-800):hover {
+  background-color: rgba(241, 245, 249, 0.8) !important;
+  color: #1e293b !important;
+}
+
+/* Inputs, Textareas, Selects */
+.theme-light input,
+.theme-light textarea,
+.theme-light select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+.theme-light input::placeholder,
+.theme-light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Tables */
+.theme-light table thead tr {
+  background-color: rgba(248, 250, 252, 0.95) !important;
+  color: #475569 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+.theme-light table tbody tr {
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+.theme-light table tbody tr:hover {
+  background-color: rgba(241, 245, 249, 0.75) !important;
+}
+
+/* Pre / Code Snippets */
+.theme-light pre {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #1e293b !important;
+}
+.theme-light pre * {
+  color: inherit !important;
+}
+
+/* Alert Banners on Light Theme */
+.theme-light .border-rose-500\/40,
+.theme-light .border-rose-500\/30 {
+  border-color: #fca5a5 !important;
+}
+.theme-light .bg-rose-500\/10 {
+  background-color: #fff1f2 !important;
+}
+.theme-light .bg-amber-500\/10 {
+  background-color: #fffbeb !important;
+}
+.theme-light .border-amber-500\/40,
+.theme-light .border-amber-500\/30 {
+  border-color: #fcd34d !important;
+}
+.theme-light .bg-emerald-500\/10 {
+  background-color: #ecfdf5 !important;
+}
+.theme-light .border-emerald-500\/30 {
+  border-color: #a7f3d0 !important;
+}
+
+/* Drawer & Modal Backdrop */
+.theme-light .bg-slate-950\/80 {
+  background-color: rgba(15, 23, 42, 0.45) !important;
+  backdrop-filter: blur(8px);
 }
