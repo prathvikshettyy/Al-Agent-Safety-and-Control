@@ -3,6 +3,7 @@ import http from 'http';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'url';
 import { getDb } from './db.js';
 import { executeGatewayAction } from './gateway.js';
