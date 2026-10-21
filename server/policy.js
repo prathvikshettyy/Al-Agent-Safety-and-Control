@@ -303,6 +303,7 @@ class SafeEvaluator {
         if (typeof target !== 'string' || typeof prefix !== 'string') return false;
         return target.startsWith(prefix);
       }
+      case 'contains':
       case 'includes': {
         const [target, search] = args;
         if (typeof target === 'string') return target.includes(String(search));

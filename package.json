@@ -9,6 +9,7 @@
     "dev:client": "npm --prefix client run dev",
     "seed": "node server/seed.js",
     "demo": "node agents/scenarios.js all",
+    "demo:all": "node agents/scenarios.js all",
     "test": "node --test --test-concurrency=1 server/tests/*.test.js"
   },
   "keywords": ["ai-safety", "agent-gateway", "security", "tamper-evident"],

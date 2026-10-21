@@ -135,3 +135,7 @@ function triggerAutoPause(agentId, reason, actionId) {
     reason
   };
 }
+
+export function clearAnomalyHistory() {
+  agentHistory.clear();
+}

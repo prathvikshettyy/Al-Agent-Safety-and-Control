@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Shield,
   Activity,
@@ -11,7 +11,9 @@ import {
   Play,
   Key,
   CheckCircle2,
-  RefreshCw
+  RefreshCw,
+  RotateCcw,
+  HeartPulse
 } from 'lucide-react';
 import { api } from '../api';
 
@@ -25,6 +27,40 @@ export function Navbar({
 }) {
   const [runningScenario, setRunningScenario] = useState(null);
   const [scenarioStatus, setScenarioStatus] = useState('');
+  const [health, setHealth] = useState(null);
+
+  useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        const h = await api.getHealth();
+        setHealth(h);
+      } catch {
+        setHealth(null);
+      }
+    };
+    checkHealth();
+    const timer = setInterval(checkHealth, 15000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const triggerReset = async () => {
+    if (!window.confirm('Reset all demo state? This will revive killed/paused agents, clear alerts, and restore fresh baseline ledger.')) return;
+    try {
+      setRunningScenario('reset');
+      setScenarioStatus('Resetting demo baseline...');
+      await api.resetDemo();
+      setScenarioStatus('Demo reset complete!');
+      setTimeout(() => {
+        setScenarioStatus('');
+        window.location.reload();
+      }, 1000);
+    } catch (err) {
+      setScenarioStatus(`Reset failed: ${err.message}`);
+      setTimeout(() => setScenarioStatus(''), 4000);
+    } finally {
+      setRunningScenario(null);
+    }
+  };
 
   const triggerScenario = async (name) => {
     try {
@@ -66,6 +102,14 @@ export function Navbar({
               {connected ? 'Gateway Live (ws/feed)' : 'Gateway Reconnecting...'}
             </span>
           </div>
+
+          {health && (
+            <div className="hidden lg:flex items-center space-x-1.5 text-slate-300 bg-slate-800/60 px-2 py-0.5 rounded border border-slate-700/50">
+              <HeartPulse className="h-3 w-3 text-emerald-400" />
+              <span>Health: {health.status}</span>
+              <span className="text-slate-400">({health.agents} agents)</span>
+            </div>
+          )}
 
           <div className="hidden md:block h-3 w-px bg-slate-800" />
 
@@ -129,6 +173,18 @@ export function Navbar({
           >
             <Play className="h-3 w-3" />
             <span>Tamper</span>
+          </button>
+
+          <div className="h-3 w-px bg-slate-700 mx-1" />
+
+          <button
+            onClick={triggerReset}
+            disabled={runningScenario != null}
+            className="flex items-center space-x-1 px-2.5 py-1 rounded bg-rose-950/70 hover:bg-rose-900 border border-rose-800/80 text-rose-300 font-semibold transition disabled:opacity-50"
+            title="Reset all demo state, revive agents, clear alerts, fresh baseline"
+          >
+            <RotateCcw className="h-3 w-3" />
+            <span>Reset Demo</span>
           </button>
         </div>
       </div>

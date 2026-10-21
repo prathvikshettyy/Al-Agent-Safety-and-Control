@@ -120,3 +120,81 @@ test('Gateway: Injection scenario ends in BLOCK or ESCALATE', async () => {
   assert.ok(exfilRes.body.decision === 'BLOCK' || exfilRes.body.decision === 'ESCALATE');
   assert.ok(exfilRes.body.risk_score >= 30);
 });
+
+test('Gateway: Deny-by-default for unknown or unlisted tools', async () => {
+  const res = await executeGatewayAction({
+    agent_id: 'support-agent',
+    tool: 'unknown.malicious_tool',
+    args: { flag: true },
+    raw_agent_key: 'key_support_tier1_secret'
+  });
+
+  assert.equal(res.status_code, 200);
+  assert.equal(res.body.decision, 'BLOCK');
+  assert.equal(res.body.status, 'blocked');
+});
+
+test('Gateway: Judge can never override a hard BLOCK rule', async () => {
+  const res = await executeGatewayAction({
+    agent_id: 'finance-agent',
+    tool: 'payments.refund',
+    args: { customer_id: 'c_101', amount: 75000, reason: 'Exceeds hard cap' },
+    raw_agent_key: 'key_finance_controller_secret'
+  });
+
+  assert.equal(res.status_code, 200);
+  assert.equal(res.body.decision, 'BLOCK');
+  assert.equal(res.body.status, 'blocked');
+});
+
+test('Gateway: Re-seed and resetDemoState restores system baseline', async () => {
+  const { resetDemoState } = await import('../seed.js');
+  const resetRes = resetDemoState();
+  assert.equal(resetRes.success, true);
+
+  const db = getDb();
+  const agents = db.prepare('SELECT id, status FROM agents').all();
+  assert.equal(agents.length, 3);
+  for (const a of agents) {
+    assert.equal(a.status, 'ACTIVE');
+  }
+
+  const actionsCount = db.prepare('SELECT COUNT(*) as count FROM actions').get().count;
+  assert.equal(actionsCount, 0);
+
+  const auditCount = db.prepare('SELECT COUNT(*) as count FROM audit_log').get().count;
+  assert.equal(auditCount, 1);
+});
+
+test('Security: PII and credit card credentials are redacted in audit logging', async () => {
+  const { appendAuditEntry } = await import('../audit.js');
+  const db = getDb();
+
+  const entry = appendAuditEntry({
+    agent_id: 'support-agent',
+    event_type: 'PII_REDACTION_TEST',
+    actor: 'agent:support-agent',
+    payload: {
+      credit_card: '4532-1111-2222-3333',
+      api_key: 'super_secret_agent_token_value',
+      notes: 'Customer card: 4532 1111 2222 3333'
+    }
+  });
+
+  const row = db.prepare('SELECT payload_json FROM audit_log WHERE seq = ?').get(entry.seq);
+  const payload = JSON.parse(row.payload_json);
+  assert.equal(payload.credit_card, '[REDACTED]');
+  assert.equal(payload.api_key, '[REDACTED]');
+  assert.ok(!row.payload_json.includes('4532-1111-2222-3333'));
+});
+
+test('Security: Policy engine contains zero eval or Function calls', async () => {
+  const fs = await import('fs');
+  const path = await import('path');
+  const policyCode = fs.readFileSync(path.resolve('server/policy.js'), 'utf-8');
+
+  // Verify no eval or Function constructors
+  assert.ok(!policyCode.includes('eval('), 'Policy must not contain eval(');
+  assert.ok(!policyCode.includes('new Function('), 'Policy must not contain new Function(');
+  assert.ok(!policyCode.includes('vm.runInContext'), 'Policy must not use vm context');
+});

@@ -17,6 +17,14 @@
       },
       "rules": [
         {
+          "id": "R0_malicious_recipient_block",
+          "tool": "email.send",
+          "when": "contains(args.to, 'attacker') || contains(args.to, 'evil.com')",
+          "action": "BLOCK",
+          "severity": "critical",
+          "message": "Outbound email to known malicious or attacker destination blocked immediately"
+        },
+        {
           "id": "R1_refund_block",
           "tool": "payments.refund",
           "when": "args.amount > 50000",

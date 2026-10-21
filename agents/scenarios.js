@@ -1,8 +1,9 @@
 import { AgentClient } from './demoAgent.js';
 import { getDb } from '../server/db.js';
+import { verifyAuditChain } from '../server/audit.js';
 import { fileURLToPath } from 'url';
 
-const GATEWAY_URL = process.env.GATEWAY_URL || 'http://127.0.0.1:3001';
+const GATEWAY_URL = process.env.GATEWAY_URL || `http://127.0.0.1:${process.env.PORT || 3001}`;
 
 export async function runNormalScenario() {
   console.log('\n======================================================');
@@ -182,9 +183,55 @@ export async function runTamperScenario() {
   db.prepare('UPDATE audit_log SET payload_json = ? WHERE seq = ?').run(tamperedPayload, row.seq);
 
   console.log(`[!] Row Seq #${row.seq} has been altered in database.`);
-  console.log('[*] Click "Verify Chain Integrity" on the Dashboard to witness instant cryptographic detection.\n');
+  console.log('[*] Verifying cryptographic chain integrity...');
 
-  return { scenario: 'tamper', success: true, tamperedSeq: row.seq };
+  const verifyRes = verifyAuditChain();
+  if (!verifyRes.ok) {
+    console.log(`[ALERT] Cryptographic tamper detected at Seq #${verifyRes.firstBadSeq}!`);
+    console.log(`        Detail: ${verifyRes.reason}`);
+  } else {
+    console.log('[OK] Chain intact.');
+  }
+
+  return {
+    scenario: 'tamper',
+    success: verifyRes.ok === false,
+    tamperedSeq: row.seq,
+    verification: verifyRes
+  };
+}
+
+export async function runDemoAll(pauseMs = 1200) {
+  console.log('\n======================================================');
+  console.log('   AGENTGUARD: 5-BEAT DEMO SCENARIO SEQUENCE');
+  console.log('======================================================\n');
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+  const results = {};
+
+  console.log('\n>>> RUNNING BEAT 1: Normal Authorized Workflow');
+  results.normal = await runNormalScenario();
+  if (pauseMs > 0) await sleep(pauseMs);
+
+  console.log('\n>>> RUNNING BEAT 2: Prompt Injection & Exfiltration Attack');
+  results.injection = await runInjectionScenario();
+  if (pauseMs > 0) await sleep(pauseMs);
+
+  console.log('\n>>> RUNNING BEAT 3: High-Value Refund Escalation');
+  results.refund = await runRefundScenario();
+  if (pauseMs > 0) await sleep(pauseMs);
+
+  console.log('\n>>> RUNNING BEAT 4: Runaway Burst & Anomaly Auto-Pause');
+  results.burst = await runBurstScenario();
+  if (pauseMs > 0) await sleep(pauseMs);
+
+  console.log('\n>>> RUNNING BEAT 5: Cryptographic Tamper Detection');
+  results.tamper = await runTamperScenario();
+
+  console.log('\n======================================================');
+  console.log('   ALL 5 SCENARIOS COMPLETED');
+  console.log('======================================================\n');
+  return results;
 }
 
 export async function runScenario(scenario) {
@@ -199,14 +246,8 @@ export async function runScenario(scenario) {
       return await runBurstScenario();
     case 'tamper':
       return await runTamperScenario();
-    case 'all': {
-      const results = {};
-      results.normal = await runNormalScenario();
-      results.injection = await runInjectionScenario();
-      results.refund = await runRefundScenario();
-      results.burst = await runBurstScenario();
-      return { scenario: 'all', results };
-    }
+    case 'all':
+      return await runDemoAll(1200);
     default:
       throw new Error(`Unknown scenario: '${scenario}'. Valid options: normal, injection, refund, burst, tamper, all`);
   }

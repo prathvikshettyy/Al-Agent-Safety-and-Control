@@ -94,5 +94,14 @@ export const api = {
     request('/api/demo/run', {
       method: 'POST',
       body: JSON.stringify({ scenario })
-    })
+    }),
+
+  // Demo Reset
+  resetDemo: () =>
+    request('/api/demo/reset', {
+      method: 'POST'
+    }),
+
+  // Health
+  getHealth: () => request('/api/health')
 };

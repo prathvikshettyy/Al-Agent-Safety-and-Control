@@ -34,6 +34,10 @@ function checkRateLimit(agentId, maxPerMin = 30) {
   return { ok: true, count: timestamps.length };
 }
 
+export function clearRateLimits() {
+  agentRateTracker.clear();
+}
+
 /**
  * Main AgentGuard Fail-Closed Execution Pipeline
  */
@@ -208,7 +212,14 @@ export async function executeGatewayAction({
     finalDecision = 'ESCALATE';
   }
 
-  // If Judge flagged misaligned with confidence > 0.7
+  // Hard prompt injection defense: Tainted session or detected payload calling sensitive/escalated tool -> hard BLOCK
+  const taintStatus = isAgentTainted(agent_id);
+  if ((taintStatus.tainted || inputScan.detected) && (riskInfo.score >= 50 || SENSITIVE_TOOLS.has(tool) || finalDecision === 'ESCALATE')) {
+    finalDecision = 'BLOCK';
+    combinedReasons.push(`Prompt injection defense: Hard BLOCK on sensitive action for tainted session (${taintStatus.reason || 'payload detected in input'})`);
+  }
+
+  // If Judge flagged misaligned with confidence > 0.7 (Judge can NEVER relax a BLOCK)
   if (judgeResult.evaluated && !judgeResult.aligned && judgeResult.confidence >= 0.7) {
     if (SENSITIVE_TOOLS.has(tool)) {
       finalDecision = 'BLOCK';

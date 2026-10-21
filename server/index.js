@@ -11,6 +11,7 @@ import { getPolicies, updatePolicies } from './policy.js';
 import { verifyAuditChain, appendAuditEntry } from './audit.js';
 import { initWebSocketServer, broadcast } from './broadcast.js';
 import { runScenario } from '../agents/scenarios.js';
+import { resetDemoState } from './seed.js';
 
 dotenv.config();
 
@@ -484,6 +485,38 @@ app.post('/api/demo/run', requireAdminAuth, async (req, res) => {
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/demo/reset (Re-seed DB, clear alerts/actions, revive agents, fresh ledger)
+app.post('/api/demo/reset', requireAdminAuth, (req, res) => {
+  try {
+    const result = resetDemoState();
+    broadcast('stats', { message: 'Demo reset completed' });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/health
+app.get('/api/health', (req, res) => {
+  try {
+    const db = getDb();
+    const agents = db.prepare('SELECT COUNT(*) as count FROM agents').get().count;
+    res.json({
+      status: 'healthy',
+      version: '1.0.0',
+      uptime: Math.floor(process.uptime()),
+      timestamp: new Date().toISOString(),
+      database: 'connected',
+      agents
+    });
+  } catch (err) {
+    res.status(503).json({
+      status: 'unhealthy',
+      error: err.message
+    });
   }
 });
 

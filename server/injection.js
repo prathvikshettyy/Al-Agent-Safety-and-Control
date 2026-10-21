@@ -106,3 +106,7 @@ export function isAgentTainted(agentId) {
 export function clearAgentTaint(agentId) {
   taintedAgents.delete(agentId);
 }
+
+export function clearAllTaints() {
+  taintedAgents.clear();
+}

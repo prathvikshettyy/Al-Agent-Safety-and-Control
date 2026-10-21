@@ -4,6 +4,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { getDb } from './db.js';
 import { appendAuditEntry } from './audit.js';
+import { clearAllTaints } from './injection.js';
+import { clearAnomalyHistory } from './anomaly.js';
+import { clearRateLimits } from './gateway.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -135,6 +138,31 @@ export function seedDatabase() {
   fs.writeFileSync(envLocalPath, envLines.join('\n') + '\n', 'utf-8');
   console.log(`[*] Wrote agent credentials to ${envLocalPath}`);
   console.log('[OK] Seeding complete.\n');
+}
+
+export function resetDemoState() {
+  console.log('[*] Resetting demo state and baseline records...');
+  const db = getDb();
+
+  db.prepare('DELETE FROM approvals').run();
+  db.prepare('DELETE FROM alerts').run();
+  db.prepare('DELETE FROM actions').run();
+  db.prepare('DELETE FROM audit_log').run();
+  db.prepare('DELETE FROM idempotency_keys').run();
+  db.prepare('DELETE FROM outbox').run();
+  db.prepare('DELETE FROM sandbox_db').run();
+
+  seedDatabase();
+
+  clearAllTaints();
+  clearAnomalyHistory();
+  clearRateLimits();
+
+  console.log('[OK] Reset complete.');
+  return {
+    success: true,
+    message: 'All demo state, tables, agents, and ledgers reset to initial baseline'
+  };
 }
 
 // Run if executed directly
