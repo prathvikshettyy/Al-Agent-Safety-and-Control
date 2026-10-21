@@ -1,0 +1,61 @@
+agents:
+  support-agent-1:
+    role: customer_support
+    allowed_tools:
+      - crm.read_customer
+      - crm.update_ticket
+      - email.send
+      - payments.refund
+    limits:
+      max_actions_per_minute: 30
+      max_records_per_call: 50
+    rules:
+      - id: R1_refund_cap
+        tool: payments.refund
+        when: "args.amount > 1000"
+        action: ESCALATE
+        severity: medium
+      - id: R2_refund_hard_cap
+        tool: payments.refund
+        when: "args.amount > 50000"
+        action: BLOCK
+        severity: high
+      - id: R3_external_email
+        tool: email.send
+        when: "not args.to.endswith('@company.com')"
+        action: ESCALATE
+        severity: high
+      - id: R4_bulk_export
+        tool: crm.export
+        when: "args.limit > 100"
+        action: BLOCK
+        severity: critical
+      - id: R5_destructive_sql
+        tool: db.query
+        when: "args.sql matches '(?i)\\b(drop|truncate|delete\\s+from)\\b'"
+        action: BLOCK
+        severity: critical
+    time_windows:
+      payments.refund: "00:00-23:59"
+  ops-agent-2:
+    role: operations
+    allowed_tools:
+      - crm.read_customer
+      - crm.export
+      - db.query
+      - email.send
+    limits:
+      max_actions_per_minute: 40
+      max_records_per_call: 100
+    rules:
+      - id: R4_bulk_export
+        tool: crm.export
+        when: "args.limit > 100"
+        action: BLOCK
+        severity: critical
+      - id: R5_destructive_sql
+        tool: db.query
+        when: "args.sql matches '(?i)\\b(drop|truncate|delete\\s+from)\\b'"
+        action: BLOCK
+        severity: critical
+default: BLOCK
