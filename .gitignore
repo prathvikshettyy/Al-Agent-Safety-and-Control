@@ -20,9 +20,10 @@ pnpm-debug.log*
 
 # Databases
 *.db
+*.db-*
 *.sqlite
 *.sqlite3
-agentguard.db
+agentguard.db*
 
 # Environment variables & secrets
 .env
