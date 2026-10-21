@@ -1,0 +1,123 @@
+{
+  "version": "1.0.0",
+  "default": "BLOCK",
+  "agents": {
+    "support-agent": {
+      "role": "customer_support",
+      "allowed_tools": [
+        "crm.read_customer",
+        "crm.update_ticket",
+        "crm.list_customers",
+        "payments.refund",
+        "email.send"
+      ],
+      "limits": {
+        "max_actions_per_minute": 30,
+        "max_records_per_call": 100
+      },
+      "rules": [
+        {
+          "id": "R1_refund_block",
+          "tool": "payments.refund",
+          "when": "args.amount > 50000",
+          "action": "BLOCK",
+          "severity": "critical",
+          "message": "Refund amount exceeds hard maximum limit of 50,000"
+        },
+        {
+          "id": "R2_refund_escalate",
+          "tool": "payments.refund",
+          "when": "args.amount > 1000",
+          "action": "ESCALATE",
+          "severity": "medium",
+          "message": "Refund amount exceeds auto-approval threshold of 1,000; requires human supervisor sign-off"
+        },
+        {
+          "id": "R3_external_email",
+          "tool": "email.send",
+          "when": "!endsWith(args.to, '@company.com')",
+          "action": "ESCALATE",
+          "severity": "high",
+          "message": "Outbound email to non-company domain requires human authorization"
+        },
+        {
+          "id": "R4_export_limit",
+          "tool": "crm.list_customers",
+          "when": "args.limit > 100",
+          "action": "BLOCK",
+          "severity": "high",
+          "message": "Bulk customer data export exceeds safe ceiling of 100 records"
+        }
+      ]
+    },
+    "finance-agent": {
+      "role": "finance",
+      "allowed_tools": [
+        "crm.read_customer",
+        "payments.refund",
+        "payments.query_ledger",
+        "email.send"
+      ],
+      "limits": {
+        "max_actions_per_minute": 30,
+        "max_records_per_call": 100
+      },
+      "rules": [
+        {
+          "id": "R1_refund_block",
+          "tool": "payments.refund",
+          "when": "args.amount > 50000",
+          "action": "BLOCK",
+          "severity": "critical",
+          "message": "Refund amount exceeds hard maximum limit of 50,000"
+        },
+        {
+          "id": "R2_refund_escalate",
+          "tool": "payments.refund",
+          "when": "args.amount > 1000",
+          "action": "ESCALATE",
+          "severity": "medium",
+          "message": "Refund amount exceeds auto-approval threshold of 1,000"
+        },
+        {
+          "id": "R3_external_email",
+          "tool": "email.send",
+          "when": "!endsWith(args.to, '@company.com')",
+          "action": "ESCALATE",
+          "severity": "high",
+          "message": "Outbound email to external recipient requires human verification"
+        }
+      ]
+    },
+    "ops-agent": {
+      "role": "operations",
+      "allowed_tools": [
+        "db.query",
+        "crm.read_customer",
+        "email.send"
+      ],
+      "limits": {
+        "max_actions_per_minute": 60,
+        "max_records_per_call": 100
+      },
+      "rules": [
+        {
+          "id": "R5_destructive_sql",
+          "tool": "db.query",
+          "when": "matches(args.sql, '(?i)(DROP|TRUNCATE|DELETE\\\\s+FROM)')",
+          "action": "BLOCK",
+          "severity": "critical",
+          "message": "Destructive SQL operation (DROP, TRUNCATE, DELETE) detected and blocked"
+        },
+        {
+          "id": "R3_external_email",
+          "tool": "email.send",
+          "when": "!endsWith(args.to, '@company.com')",
+          "action": "ESCALATE",
+          "severity": "high",
+          "message": "Outbound email to external recipient requires human verification"
+        }
+      ]
+    }
+  }
+}

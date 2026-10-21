@@ -1,0 +1,26 @@
+{
+  "name": "agentguard",
+  "version": "1.0.0",
+  "description": "AgentGuard: AI Agent Safety and Control Gateway",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"cyan,magenta\" \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "node server/index.js",
+    "dev:client": "npm --prefix client run dev",
+    "seed": "node server/seed.js",
+    "demo": "node agents/scenarios.js all",
+    "test": "node --test server/tests/*.test.js"
+  },
+  "keywords": ["ai-safety", "agent-gateway", "security", "tamper-evident"],
+  "author": "prathvik.shettyy",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "ws": "^8.18.0",
+    "dotenv": "^16.4.7",
+    "concurrently": "^9.1.2"
+  },
+  "devDependencies": {}
+}
