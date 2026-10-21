@@ -12,15 +12,25 @@
     "demo:all": "node agents/scenarios.js all",
     "test": "node --test --test-concurrency=1 server/tests/*.test.js"
   },
-  "keywords": ["ai-safety", "agent-gateway", "security", "tamper-evident"],
+  "keywords": [
+    "ai-safety",
+    "agent-gateway",
+    "security",
+    "tamper-evident"
+  ],
   "author": "prathvik.shettyy",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.21.2",
+    "concurrently": "^9.1.2",
     "cors": "^2.8.5",
-    "ws": "^8.18.0",
     "dotenv": "^16.4.7",
-    "concurrently": "^9.1.2"
+    "express": "^4.21.2",
+    "ws": "^8.18.0"
   },
-  "devDependencies": {}
+  "engines": {
+    "node": ">=22.5"
+  },
+  "devDependencies": {
+    "playwright": "^1.64.1"
+  }
 }

@@ -1,7 +1,7 @@
 const TOKEN_STORAGE_KEY = 'agentguard_admin_token';
 
 export function getAdminToken() {
-  return localStorage.getItem(TOKEN_STORAGE_KEY) || 'admin-secret-token-123';
+  return localStorage.getItem(TOKEN_STORAGE_KEY) || (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ADMIN_TOKEN) || 'admin-secret-token-123';
 }
 
 export function setAdminToken(token) {

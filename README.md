@@ -88,7 +88,7 @@ Autonomous AI agents calling operational tools (CRM, email, database, payments) 
 ## 3. Quickstart Guide (Windows, macOS, Linux)
 
 ### Prerequisites
-- **Node.js**: v20+ or v22+ or v24+ (Uses Node's built-in `node:sqlite` DatabaseSync—**zero** native C++ compiler or Python dependencies required).
+- **Node.js**: `>=22.5.0` (Uses Node's built-in `node:sqlite` DatabaseSync—**zero** native C++ compiler or Python dependencies required. Tested on Node.js v24).
 - **npm**: v10+
 
 ### 1. Installation
@@ -212,7 +212,7 @@ Create `.env` at root based on `.env.example`:
 | `ADMIN_TOKEN` | Bearer token for admin dashboard API | `admin-secret-token-123` |
 | `ANTHROPIC_API_KEY` | *(Optional)* Anthropic API key for LLM Security Judge | *(None)* |
 | `JUDGE_ENABLED` | Enable LLM judge for 30–70 grey-zone score evaluation | `false` |
-| `JUDGE_MODEL` | Claude model name for LLM Security Judge | `claude-3-5-sonnet-20241022` |
+| `JUDGE_MODEL` | Claude model name for LLM Security Judge | `claude-sonnet-5-5` |
 | `DB_PATH` | Path to SQLite database | `agentguard.db` |
 
 ---

@@ -57,7 +57,7 @@ Respond ONLY with valid JSON in this exact structure:
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: process.env.JUDGE_MODEL || 'claude-3-5-sonnet-20241022',
+        model: process.env.JUDGE_MODEL || 'claude-sonnet-5-5',
         max_tokens: 300,
         messages: [{ role: 'user', content: prompt }]
       }),
