@@ -97,7 +97,7 @@ export function App() {
   }, [toast]);
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans relative transition-colors duration-300 ${
+    <div className={`min-h-screen flex flex-col font-mono relative transition-colors duration-300 ${
       theme === 'light' ? 'theme-light text-slate-800' : 'theme-dark bg-slate-950 text-slate-100'
     }`}>
       {theme === 'light' && <AnimatedBackground />}
