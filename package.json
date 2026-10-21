@@ -9,13 +9,12 @@
     "dev:client": "npm --prefix client run dev",
     "seed": "node server/seed.js",
     "demo": "node agents/scenarios.js all",
-    "test": "node --test server/tests/*.test.js"
+    "test": "node --test --test-concurrency=1 server/tests/*.test.js"
   },
   "keywords": ["ai-safety", "agent-gateway", "security", "tamper-evident"],
   "author": "prathvik.shettyy",
   "license": "MIT",
   "dependencies": {
-    "better-sqlite3": "^13.0.3",
     "express": "^4.21.2",
     "cors": "^2.8.5",
     "ws": "^8.18.0",
